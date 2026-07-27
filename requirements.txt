@@ -1,0 +1,8 @@
+pandas
+numpy
+yfinance
+sqlalchemy
+pyodbc
+scikit-learn
+xgboost
+dotenv
