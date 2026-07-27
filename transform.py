@@ -18,7 +18,7 @@ def get_db_connection():
 
 def engineer_features(df):
     print("Calculating ML features...")
-    df['TradeDate'] = pd.to_datetime(df['TradeDate'], format='ISO8601')
+    df['TradeDate'] = pd.to_datetime(df['TradeDate'])
     df.sort_values(by=['Ticker', 'TradeDate'], inplace=True)
 
     # 1. Target Winsorization (1st and 99th percentile)
