@@ -91,7 +91,7 @@ def save_signals_to_azure(df, engine):
 
         # Filter the incoming dataframe for only newer dates
         if max_date:
-            max_date = pd.to_datetime(max_date).date()
+            max_date = pd.to_datetime(max_date)
             new_records = df[df['TradeDate'] > max_date]
         else:
             new_records = df
