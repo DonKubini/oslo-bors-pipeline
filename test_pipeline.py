@@ -1,6 +1,5 @@
 import unittest
 from unittest.mock import patch
-from matplotlib import dates
 import pandas as pd
 import numpy as np
 
