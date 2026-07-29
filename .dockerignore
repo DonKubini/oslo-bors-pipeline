@@ -4,3 +4,4 @@ __pycache__
 .git
 .gitignore
 test_pipeline.py
+requirements_test.txt
