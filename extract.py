@@ -23,9 +23,17 @@ def get_db_connection():
     database = os.getenv('AZURE_SQL_DATABASE')
     username = os.getenv('AZURE_SQL_USER')
     password = os.getenv('AZURE_SQL_PASSWORD')
+    cert_host = os.getenv('AZURE_SQL_CERT_HOST')
     
     # Connection string for pyodbc / sqlalchemy
-    conn_str = f"mssql+pyodbc://{username}:{password}@{server}/{database}?driver=ODBC+Driver+18+for+SQL+Server"
+    conn_str = (
+    f"mssql+pyodbc://{username}:{password}@{server}/{database}"
+    f"?driver=ODBC+Driver+18+for+SQL+Server"
+    f"&Encrypt=yes"
+    f"&TrustServerCertificate=no"
+    f"&HostNameInCertificate={cert_host}"
+    )
+
     return create_engine(conn_str)
 
 def fetch_monthly_delta(ticker_map):
