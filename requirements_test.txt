@@ -1,4 +1,2 @@
 # Inherit all production dependencies
 -r requirements.txt
-
-unitest
