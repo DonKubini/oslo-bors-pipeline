@@ -28,7 +28,7 @@ jobs:
         
     - name: Install dependencies and Test
       run: |
-        pip install --prefer-binary -r requirements-test.txt
+        pip install --prefer-binary -r requirements_test.txt
         python test_pipeline.py
 
     # 3. Log in securely to Azure Container Registry
