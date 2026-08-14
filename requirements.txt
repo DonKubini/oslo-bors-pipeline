@@ -7,4 +7,3 @@ scikit-learn
 xgboost
 dotenv
 datetime
-urllib
