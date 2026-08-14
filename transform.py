@@ -4,24 +4,33 @@ import os
 from sqlalchemy import create_engine
 from sqlalchemy.exc import SQLAlchemyError
 from dotenv import load_dotenv
+import urllib
 
 load_dotenv()
 
 def get_db_connection():
-    """Securely connects to Azure SQL using environment variables."""
-    server = os.getenv('AZURE_SQL_SERVER')
-    database = os.getenv('AZURE_SQL_DATABASE')
-    username = os.getenv('AZURE_SQL_USER')
-    password = os.getenv('AZURE_SQL_PASSWORD')
-    cert_host = os.getenv('AZURE_SQL_CERT_HOST')
+    server = os.environ["AZURE_SQL_SERVER"]
+    database = os.environ["AZURE_SQL_DATABASE"]
+    
+    # We need the Client ID of our Managed Identity
+    client_id = os.environ["AZURE_CLIENT_ID"]
+
+    # The passwordless ODBC connection string
     conn_str = (
-    f"mssql+pyodbc://{username}:{password}@{server}/{database}"
-    f"?driver=ODBC+Driver+18+for+SQL+Server"
-    f"&Encrypt=yes"
-    f"&TrustServerCertificate=no"
-    f"&HostNameInCertificate={cert_host}"
+        f"Driver={{ODBC Driver 18 for SQL Server}};"
+        f"Server=tcp:{server},1433;"
+        f"Database={database};"
+        f"Authentication=ActiveDirectoryMsi;"
+        f"UID={client_id};"
+        f"Encrypt=yes;"
     )
-    return create_engine(conn_str)
+    
+    # SQLAlchemy requires ODBC connection strings to be URL-encoded
+    quoted_conn_str = urllib.parse.quote_plus(conn_str)
+    engine = create_engine(f"mssql+pyodbc:///?odbc_connect={quoted_conn_str}")
+    
+    return engine
+    
 
 def engineer_features(df):
     print("Calculating ML features...")
