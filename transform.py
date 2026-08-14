@@ -9,11 +9,11 @@ import urllib
 load_dotenv()
 
 def get_db_connection():
-    server = os.environ["AZURE_SQL_SERVER"]
-    database = os.environ["AZURE_SQL_DATABASE"]
+    server = os.getenv("AZURE_SQL_SERVER")
+    database = os.getenv("AZURE_SQL_DATABASE")
     
     # We need the Client ID of our Managed Identity
-    client_id = os.environ["AZURE_CLIENT_ID"]
+    client_id = os.getenv("AZURE_CLIENT_ID")
 
     # The passwordless ODBC connection string
     conn_str = (
