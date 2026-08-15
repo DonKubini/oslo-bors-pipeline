@@ -58,22 +58,25 @@ class TestOsloBorsPipeline(unittest.TestCase):
     def test_database_connection_string(self, mock_getenv):
         """
         Tests if extract.py formats the SQLAlchemy connection string properly
-        without actually connecting to Azure.
+        using the new Passwordless configuration.
         """
-        # Provide fake environment variables
+        # Provide fake environment variables matching the new passwordless setup
         mock_getenv.side_effect = lambda key: {
             'AZURE_SQL_SERVER': 'fake-server',
             'AZURE_SQL_DATABASE': 'fake-db',
-            'AZURE_SQL_USER': 'fake-user',
-            'AZURE_SQL_PASSWORD': 'fake-password'
+            'AZURE_CLIENT_ID': 'fake-client-id-12345'
         }.get(key)
 
         # Call the connection function (it will throw an error if the string is malformed)
         try:
             engine = extract.get_db_connection()
+            
             # Verify the connection string was formatted with the fake credentials
-            self.assertIn("fake-server", str(engine.url))
-            self.assertIn("fake-user", str(engine.url))
+            url_str = str(engine.url)
+            self.assertIn("fake-server", url_str)
+            self.assertIn("fake-client-id-12345", url_str) # Replaces the old username check
+            self.assertIn("ActiveDirectoryMsi", url_str)   # Confirms passwordless auth is enabled
+            
         except Exception as e:
             self.fail(f"get_db_connection() raised an exception: {e}")
 
