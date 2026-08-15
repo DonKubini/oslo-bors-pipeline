@@ -172,3 +172,29 @@ resource "azurerm_container_app_job" "monthly_job" {
     azurerm_role_assignment.acr_pull
   ]
 }
+
+## Setting up identity for github actions to update the job image automatically
+
+# 1. Create a Managed Identity specifically for GitHub Actions
+resource "azurerm_user_assigned_identity" "github_identity" {
+  name                = "github-actions-identity"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+}
+
+# 2. Give it Contributor access to your Resource Group so it can update the Job
+resource "azurerm_role_assignment" "github_contributor" {
+  scope                = azurerm_resource_group.rg.id
+  role_definition_name = "Contributor"
+  principal_id         = azurerm_user_assigned_identity.github_identity.principal_id
+}
+
+# 3. Create the OIDC Federation (The Trust Handshake)
+resource "azurerm_federated_identity_credential" "github_oidc" {
+  name                = "github-actions-federation"
+  audience            = ["api://AzureADTokenExchange"]
+  issuer              = "https://token.actions.githubusercontent.com"
+  user_assigned_identity_id = azurerm_user_assigned_identity.github_identity.id  
+  # This tells Azure: ONLY trust the 'main' branch of this specific repository
+  subject             = "repo:DonKubini/oslo-bors-pipeline:ref:refs/heads/main"
+}
