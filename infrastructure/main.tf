@@ -133,7 +133,7 @@ resource "azurerm_container_app_job" "monthly_job" {
   }
 
   schedule_trigger_config {
-    cron_expression = "0 0 1 * *"
+    cron_expression = "0 0 3 * *"
   }
 
   template {
