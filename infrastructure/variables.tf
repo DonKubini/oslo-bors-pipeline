@@ -28,3 +28,8 @@ variable "azure_user_email" {
   type        = string
   default     = "sismajak@cvut.cz"
 }
+
+variable "github_repository" {
+  type    = string
+  default = "DonKubini/oslo-bors-pipeline"
+}

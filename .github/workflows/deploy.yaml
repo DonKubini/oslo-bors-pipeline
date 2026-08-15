@@ -48,9 +48,17 @@ jobs:
         docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/oslo-bors-pipeline:${{ github.sha }} .
         docker push ${{ secrets.ACR_LOGIN_SERVER }}/oslo-bors-pipeline:${{ github.sha }}
 
+    - name: Debug GitHub identity
+      run: |
+        echo "Repository: ${{ github.repository }}"
+        echo "Repository owner: ${{ github.repository_owner }}"
+        echo "Repository ID: ${{ github.repository_id }}"
+        echo "Ref: ${{ github.ref }}"
+        echo "SHA: ${{ github.sha }}"
+
     # 5. Log in to Azure CLI using OpenID Connect
     - name: Log in to Azure via OIDC
-      uses: azure/login@v1
+      uses: azure/login@v2
       with:
         client-id: ${{ secrets.AZURE_CLIENT_ID }}
         tenant-id: ${{ secrets.AZURE_TENANT_ID }}
@@ -58,7 +66,7 @@ jobs:
 
     # 6. Tell the Container App Job to use the newly pushed image
     - name: Update Container App Job
-      uses: azure/cli@v1
+      uses: azure/cli@v2
       with:
         inlineScript: |
           az containerapp job update \

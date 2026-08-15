@@ -191,10 +191,9 @@ resource "azurerm_role_assignment" "github_contributor" {
 
 # 3. Create the OIDC Federation (The Trust Handshake)
 resource "azurerm_federated_identity_credential" "github_oidc" {
-  name                = "github-actions-federation"
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  user_assigned_identity_id = azurerm_user_assigned_identity.github_identity.id  
-  # This tells Azure: ONLY trust the 'main' branch of this specific repository
-  subject             = "repo:DonKubini/oslo-bors-pipeline:ref:refs/heads/main"
+  name                       = "github-actions-federation"
+  audience                   = ["api://AzureADTokenExchange"]
+  issuer                     = "https://token.actions.githubusercontent.com"
+  user_assigned_identity_id  = azurerm_user_assigned_identity.github_identity.id
+  subject                    = "repo:${var.github_repository}:ref:refs/heads/main"
 }
