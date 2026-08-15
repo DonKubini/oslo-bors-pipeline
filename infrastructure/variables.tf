@@ -31,5 +31,5 @@ variable "azure_user_email" {
 
 variable "github_repository" {
   type    = string
-  default = "DonKubini/oslo-bors-pipeline"
+  default = "DonKubini@128520245/oslo-bors-pipeline@1314087277"
 }
