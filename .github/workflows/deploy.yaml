@@ -14,6 +14,9 @@ on:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      id-token: write
 
     steps:
     # 1. Download the latest code from the repository
@@ -39,8 +42,26 @@ jobs:
         username: ${{ secrets.ACR_USERNAME }}
         password: ${{ secrets.ACR_PASSWORD }}
 
-    # 4. Build and Push the new Docker image
+    # 4. Build and Push the new Docker image using dynamic secrets
     - name: Build and Push Docker Image
       run: |
-        docker build -t osloborsacr.azurecr.io/oslo-bors-pipeline:v1 .
-        docker push osloborsacr.azurecr.io/oslo-bors-pipeline:v1
+        docker build -t ${{ secrets.ACR_LOGIN_SERVER }}/oslo-bors-pipeline:${{ github.sha }} .
+        docker push ${{ secrets.ACR_LOGIN_SERVER }}/oslo-bors-pipeline:${{ github.sha }}
+
+    # 5. Log in to Azure CLI using OpenID Connect
+    - name: Log in to Azure via OIDC
+      uses: azure/login@v1
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+    # 6. Tell the Container App Job to use the newly pushed image
+    - name: Update Container App Job
+      uses: azure/cli@v1
+      with:
+        inlineScript: |
+          az containerapp job update \
+            --name oslo-bors-monthly-job-tf \
+            --resource-group oslo-bors-terraform-rg \
+            --image ${{ secrets.ACR_LOGIN_SERVER }}/oslo-bors-pipeline:${{ github.sha }}
