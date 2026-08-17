@@ -39,6 +39,17 @@ The pipeline runs in three phases, orchestrated by `main.py`:
    Output is written to the `engineered_features` table.
 3. **Inference** (`predict.py`) — Trains an ensemble of three models (Ridge regression, Random Forest, XGBoost) on all historical engineered features, predicts next-period returns for the most recent month, ranks tickers by predicted return, and flags the top 10 as `BUY` (all others `HOLD`). Results are saved to the `investment_signals` table.
 
+### Data Flow
+```mermaid
+flowchart LR
+    API[Yahoo Finance] -->|extract.py| DB1[(raw_market_data)]
+    DB1 -->|transform.py| DB2[(engineered_features)]
+    DB2 -->|predict.py| DB3[(investment_signals)]
+    
+    classDef database fill:#0072C6,stroke:#fff,stroke-width:2px,color:#fff
+    class DB1,DB2,DB3 database
+```
+
 ### Tickers tracked
 
 | Yahoo Ticker | ISIN |
@@ -177,6 +188,14 @@ pytest test_pipeline.py
 ├── requirements.txt
 └── requirements_test.txt
 ```
+
+## Future Enhancements & Optimizations
+
+While the current pipeline is fully functional, an enterprise-scale version would benefit from the following architectural evolutions:
+
+*   **Incremental Data Loading (Delta Loads):** Currently, `transform.py` recalculates rolling features for the entire historical dataset. As data volume grows, this should be optimized to only fetch, calculate, and upsert the most recent month of data (incremental processing) to reduce compute time and database I/O.
+*   **Data Quality Validation:** Implementing a tool like *Great Expectations* or *Pydantic* between the extract and transform phases to ensure data types, check for missing values, and validate schema integrity before writing to Azure SQL.
+*   **Always-On Serving API:** Building a lightweight web server (e.g., FastAPI) and deploying it to Azure Container Apps to expose the `investment_signals` table to end-users via secure REST endpoints.
 
 ## Disclaimer
 
