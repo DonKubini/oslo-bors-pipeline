@@ -203,4 +203,4 @@ This project is for educational/research purposes. The generated BUY/HOLD signal
 
 ## License
 
-_Add a license (e.g. MIT) if you intend to share this publicly._
+The code in this repository is published under MIT license. For more info see the LICENSE file.
